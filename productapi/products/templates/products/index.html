@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+</head>
+<body>
+    <h1>Product List</h1>
+
+    <form id="productForm">
+        <input type="text" id="name" placeholder="Product Name" required><br>
+        <textarea id="description" placeholder="Product Description" required></textarea><br>
+        <input type="number" id="price" placeholder="Product Price" required><br>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <h2>Products:</h2>
+    <table id="productTable" border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById('productForm');
+            const table = document.getElementById('productTable').querySelector('tbody');
+
+            function loadProducts() {
+                fetch('/api/products/')
+                    .then(response => response.json())
+                    .then(data => {
+                        table.innerHTML = '';
+                        data.forEach(product => {
+                            let row = table.insertRow();
+                            row.insertCell(0).innerText = product.name;
+                            row.insertCell(1).innerText = product.description;
+                            row.insertCell(2).innerText = product.price;
+                        });
+                    });
+            }
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                let productData = {
+                    name: document.getElementById('name').value,
+                    description: document.getElementById('description').value,
+                    price: document.getElementById('price').value
+                };
+
+                fetch('/api/products/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    form.reset();
+                    loadProducts();
+                });
+            });
+
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
